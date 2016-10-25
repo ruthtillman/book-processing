@@ -98,17 +98,17 @@ def getSubjects(record):
     for subject in record.subjects():
       workingSub = ''
       for subfields in subject:
-        workingSub += str(subfields[1]) + ' '
-        if workingSub.endswith('. '):
-          workingSub = workingSub[:-2] + '--'
-        elif workingSub.endswith(' '):
-          workingSub = workingSub
+        workingSub += str(subfields[1])
+        if re.search(r'[A-Za-z]$', workingSub):
+          workingSub += '--'
         else:
-          workingSub = workingSub + '--'
-        if subjects == '':
-          if workingSub.endswith(' '):
-              subjects += workingSub.rstrip('  --')
-        else:
-          subjects += "|" + workingSub.rstrip('  --')
+          workingSub += ' '
+      workingSub = workingSub.rstrip('--')
+      workingSub = workingSub.rstrip(' ')
+      workingSub = workingSub.rstrip('.')
+      if subjects == '':
+        subjects += workingSub
+      else:
+        subjects += '|' + workingSub
 
 getDCVariables();
