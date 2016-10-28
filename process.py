@@ -4,7 +4,7 @@ from pymarc import MARCReader
 
 
 def getDCVariables():
-    global alephIdentifier, dctitle, dctype, author, coauthor, alternative, isbn, subjects
+    global alephIdentifier, dctitle, dctype, author, coauthor, alternative, isbn, subjects, issued
     with open("/Users/rtillman/Documents/Projects/CurateBooks/PyMARC/alephrecords.mrc", "rb") as marcfile:
       reader = MARCReader(marcfile)
       for record in reader:
@@ -16,7 +16,8 @@ def getDCVariables():
         getAltTitle(record);
         getISBN(record);
         getSubjects(record);
-        print alephIdentifier, dctitle, subjects
+        getIssued(record);
+        print alephIdentifier, dctitle, issued
 
 def getAlephIdentifier(record):
     global alephIdentifier
@@ -91,6 +92,16 @@ def getISBN(record):
     isbn = ''
     if record.isbn():
       isbn = str(record.isbn())
+
+def getIssued(record):
+    global issued
+    issued = ''
+    if record.pubyear():
+        issued = str(record.pubyear())
+        issued = issued.rstrip('.')
+        if "[" in issued:
+            issued = issued.lstrip('[')
+            issued = issued.rstrip(']')
 
 def getSubjects(record):
     global subjects
