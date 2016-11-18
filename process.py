@@ -14,7 +14,7 @@ def cleanerApp(content):
     return content
 
 def getDCVariables():
-    global alephIdentifier, dctitle, dctype, author, coauthor, alternative, isbn, subjects, issued, publisher, abstracts
+    global alephIdentifier, dctitle, dctype, author, coauthor, alternative, isbn, subjects, issued, publisher, abstracts, extents, editions
     with open("/Users/rtillman/Documents/Projects/CurateBooks/PyMARC/alephrecords.mrc", "rb") as marcfile:
       reader = MARCReader(marcfile)
       for record in reader:
@@ -29,7 +29,9 @@ def getDCVariables():
         getIssued(record);
         getPublisher(record);
         getAbstracts(record);
-        print alephIdentifier, dctitle, issued, publisher, abstracts
+        getExtents(record);
+        getEdition(record);
+        print alephIdentifier, dctitle, issued, publisher, extents
 
 def getAlephIdentifier(record):
     global alephIdentifier
@@ -151,9 +153,46 @@ def getAbstracts(record):
             abstracts = abstr['a']
             if abstr['b']:
                 abstracts += abstr['b']
+            abstracts = abstracts.rstrip(' ')
         else:
             abstracts += "\u000a\u000a" + abstr['a']
             if abstr['b']:
                 abstracts += abstr['b']
+            abstracts = abstracts.rstrip(' ')
+
+# needs more formatting stuff
+
+def getExtents(record):
+    global extents
+    extents = ''
+    for extent in record.get_fields('300'):
+        if extents == '':
+            extents = extent['a']
+            extents = extents.rstrip(' ')
+            if "online resource" in extents:
+                extents = extents.replace('1 online resource (','')
+                extents = extents.rstrip(')')
+        else:
+            cleanextent = extent['a']
+            cleanextent = cleanextent.rstrip(' ')
+            if "online resource" in cleanextent:
+                cleanextent = cleanextent.replace('1 online resource (','')
+                cleanextent = cleanextent.rstrip(')')
+            extents += '|' + cleanextent
+
+def getEdition(record):
+    global editions
+    editions = ''
+    for ed in record.get_fields('250'):
+        if editions == '':
+            editions = ed['a']
+            if ed['b']:
+                editions += ed['b']
+            editions = editions.rstrip('.')
+        else:
+            editions += '|' + ed['a']
+            if ed['b']:
+                editions += ed['b']
+            editions = editions.rstrip('.')
 
 getDCVariables();
