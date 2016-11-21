@@ -14,7 +14,7 @@ def cleanerApp(content):
     return content
 
 def getDCVariables():
-    global alephIdentifier, dctitle, dctype, author, coauthor, alternative, isbn, subjects, issued, publisher, abstracts, extents, editions
+    global alephIdentifier, dctitle, dctype, author, coauthor, alternative, isbn, subjects, issued, publisher, abstracts, extent, editions
     with open("/Users/rtillman/Documents/Projects/CurateBooks/PyMARC/alephrecords.mrc", "rb") as marcfile:
       reader = MARCReader(marcfile)
       for record in reader:
@@ -29,9 +29,9 @@ def getDCVariables():
         getIssued(record);
         getPublisher(record);
         getAbstracts(record);
-        getExtents(record);
+        getExtent(record);
         getEdition(record);
-        print alephIdentifier, dctitle, issued, publisher, extents
+        print alephIdentifier, dctitle, issued, publisher, extent
 
 def getAlephIdentifier(record):
     global alephIdentifier
@@ -160,25 +160,13 @@ def getAbstracts(record):
                 abstracts += abstr['b']
             abstracts = abstracts.rstrip(' ')
 
-# needs more formatting stuff
-
-def getExtents(record):
-    global extents
-    extents = ''
-    for extent in record.get_fields('300'):
-        if extents == '':
-            extents = extent['a']
-            extents = extents.rstrip(' ')
-            if "online resource" in extents:
-                extents = extents.replace('1 online resource (','')
-                extents = extents.rstrip(')')
-        else:
-            cleanextent = extent['a']
-            cleanextent = cleanextent.rstrip(' ')
-            if "online resource" in cleanextent:
-                cleanextent = cleanextent.replace('1 online resource (','')
-                cleanextent = cleanextent.rstrip(')')
-            extents += '|' + cleanextent
+def getExtent(record):
+    global extent
+    for extentvals in record.get_fields('300'):
+        extent = extentvals['a'].rstrip(' ')
+        if "online resource" in extent:
+            extent = extent.replace('1 online resource (','')
+            extent = extent.rstrip(')')
 
 def getEdition(record):
     global editions
