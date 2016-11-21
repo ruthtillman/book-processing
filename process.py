@@ -13,28 +13,6 @@ def cleanerApp(content):
     content = re.sub(u'(\\n\s|\\n)', '', content)
     return content
 
-def getDCVariables():
-    global alephIdentifier, dctitle, dctype, author, coauthor, alternative, isbn, subjects, issued, publisher, abstracts, extent, editions, tableofcontents, language
-    with open("/Users/rtillman/Documents/Projects/CurateBooks/PyMARC/alephrecords.mrc", "rb") as marcfile:
-      reader = MARCReader(marcfile)
-      for record in reader:
-        dctype = "book"
-        getAlephIdentifier(record);
-        getDCTitle(record);
-        getAuthor(record);
-        getCoAuthor(record);
-        getAltTitle(record);
-        getISBN(record);
-        getSubjects(record);
-        getIssued(record);
-        getPublisher(record);
-        getAbstracts(record);
-        getExtent(record);
-        getEdition(record);
-        getLanguage(record);
-#        getTableofContents(record);
-        print alephIdentifier, dctitle, issued, publisher, language
-
 def getAlephIdentifier(record):
     global alephIdentifier
     alephIdentifier = str(record['001'])
@@ -207,4 +185,29 @@ def getTableofContents(record):
             tableofcontents += ' ' + cleanerApp(tableofcontents)
 '''
 
-getDCVariables();
+def writeVarsToCSV():
+    global alephIdentifier, dctitle, dctype, author, coauthor, alternative, isbn, subjects, issued, publisher, abstracts, extent, editions, tableofcontents, language
+    with open('metadata-1.csv', 'w') as csvfile:
+        fieldnames = ['owner', 'access', 'type', 'dc:title', 'dc:type', 'nd:alephIdentifier', 'dc:creator#author', 'dc:contributor#author', 'dc:alternative', 'dc:identifier#isbn', 'dc:subject#lcsh', 'dc:issued', 'dc:publisher', 'dc:abstract', 'dc:extent', 'dc:isVersionOf#edition', 'dc:language']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        with open("/Users/rtillman/Documents/Projects/CurateBooks/PyMARC/alephrecords.mrc", "rb") as marcfile:
+          reader = MARCReader(marcfile)
+          for record in reader:
+            dctype = "book"
+            getAlephIdentifier(record);
+            getDCTitle(record);
+            getAuthor(record);
+            getCoAuthor(record);
+            getAltTitle(record);
+            getISBN(record);
+            getSubjects(record);
+            getIssued(record);
+            getPublisher(record);
+            getAbstracts(record);
+            getExtent(record);
+            getEdition(record);
+            getLanguage(record);
+            writer.writerow({'owner' : 'rtillman', 'access' : 'public', 'type' : 'Work-Document', 'dc:title': dctitle, 'dc:type' : dctype, 'nd:alephIdentifier' : alephIdentifier, 'dc:creator#author' : author, 'dc:contributor#author' : coauthor, 'dc:alternative' : alternative, 'dc:identifier#isbn' : isbn, 'dc:subject#lcsh' : subjects, 'dc:issued' : issued, 'dc:publisher' : publisher, 'dc:abstract' : abstracts, 'dc:extent' : extent, 'dc:isVersionOf#edition' : editions, 'dc:language' : language})
+
+writeVarsToCSV();
