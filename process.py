@@ -1,4 +1,4 @@
-import csv, re, io
+import csv, re, io, pycountry
 from pymarc import MARCReader
 
 def cleanerApp(content):
@@ -14,7 +14,7 @@ def cleanerApp(content):
     return content
 
 def getDCVariables():
-    global alephIdentifier, dctitle, dctype, author, coauthor, alternative, isbn, subjects, issued, publisher, abstracts, extent, editions
+    global alephIdentifier, dctitle, dctype, author, coauthor, alternative, isbn, subjects, issued, publisher, abstracts, extent, editions, tableofcontents, language
     with open("/Users/rtillman/Documents/Projects/CurateBooks/PyMARC/alephrecords.mrc", "rb") as marcfile:
       reader = MARCReader(marcfile)
       for record in reader:
@@ -31,7 +31,9 @@ def getDCVariables():
         getAbstracts(record);
         getExtent(record);
         getEdition(record);
-        print alephIdentifier, dctitle, issued, publisher, extent
+        getLanguage(record);
+#        getTableofContents(record);
+        print alephIdentifier, dctitle, issued, publisher, language
 
 def getAlephIdentifier(record):
     global alephIdentifier
@@ -182,5 +184,27 @@ def getEdition(record):
             if ed['b']:
                 editions += ed['b']
             editions = editions.rstrip('.')
+
+def getLanguage(record):
+    global language
+    data = record['008'].data
+    langvar = data[35:-2]
+    if langvar == "fre":
+      langvar = "fra"
+    langset = pycountry.languages.get(alpha_3=langvar)
+    language = str(langset.name)
+
+'''
+# This needs work still
+def getTableofContents(record):
+    global tableofcontents
+    tableofcontents = ''
+    for table in record.get_fields('505'):
+        if tableofcontents == '':
+            tableofcontents = str(table).encode('UTF-8')
+            tableofcontents = cleanerApp(tableofcontents)
+        else:
+            tableofcontents += ' ' + cleanerApp(tableofcontents)
+'''
 
 getDCVariables();
