@@ -120,6 +120,8 @@ def getSubjects(record):
       workingSub = workingSub.rstrip('--')
       workingSub = workingSub.rstrip(' ')
       workingSub = workingSub.rstrip('.')
+      if '. lcgft' in workingSub:
+          workingSub = workingSub.rstrip('. lcgft')
       if subjects == '':
         subjects += workingSub
       else:
