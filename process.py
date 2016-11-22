@@ -40,9 +40,15 @@ def getAltTitle(record):
 
 def getAuthor(record):
     global author
-    author = str(record.author())
-    if author == "None":
+    try:
+        record.author()
+    except TypeError:
         author = ''
+    if record.author():
+        author = str(record.author().encode('UTF-8'))
+        author = cleanerApp(author)
+        if author == "None":
+            author = ''
 
 def getCoAuthor(record):
     global coauthor
@@ -59,27 +65,29 @@ def getCoAuthor(record):
             coauthor += " " + person['d']
         coauthor = coauthor.rstrip('.')
     for corpname in record.get_fields('710'):
-      if coauthor == '':
-        coauthor += corpname['a']
-        if corpname['d']:
-          coauthor += " " + corpname['d']
+        if corpname['a']:
+          if coauthor == '':
+            coauthor += corpname['a']
+            if corpname['d']:
+              coauthor += " " + corpname['d']
+            coauthor = coauthor.rstrip('.')
+          else:
+            coauthor += "|" + corpname['a']
+            if corpname['d']:
+              coauthor += " " + corpname['d']
         coauthor = coauthor.rstrip('.')
-      else:
-        coauthor += "|" + corpname['a']
-        if corpname['d']:
-          coauthor += " " + corpname['d']
-        coauthor = coauthor.rstrip('.')
-      for meetname in record.get_fields('711'):
-        if coauthor == '':
-          coauthor += meetname['a']
-          if meetname['d']:
-            coauthor += " " + meetname['d']
-          coauthor = coauthor.rstrip('.')
-        else:
-          coauthor += "|" + meetname['a']
-          if meetname['d']:
-            coauthor += " " + meetname['d']
-          coauthor = coauthor.rstrip('.')
+    for meetname in record.get_fields('711'):
+        if meetname['a']:
+            if coauthor == '':
+              coauthor += meetname['a']
+              if meetname['d']:
+                coauthor += " " + meetname['d']
+              coauthor = coauthor.rstrip('.')
+            else:
+              coauthor += "|" + meetname['a']
+              if meetname['d']:
+                coauthor += " " + meetname['d']
+            coauthor = coauthor.rstrip('.')
 
 def getISBN(record):
     global isbn
@@ -193,7 +201,7 @@ def writeVarsToCSV():
         fieldnames = ['owner', 'access', 'type', 'dc:title', 'dc:type', 'nd:alephIdentifier', 'dc:creator#author', 'dc:contributor#author', 'dc:alternative', 'dc:identifier#isbn', 'dc:subject#lcsh', 'dc:issued', 'dc:publisher', 'dc:abstract', 'dc:extent', 'dc:isVersionOf#edition', 'dc:language']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        with open("/Users/rtillman/Documents/Projects/CurateBooks/PyMARC/alephrecords.mrc", "rb") as marcfile:
+        with open("/Users/rtillman/Documents/Projects/CurateBooks/PyMARC/catholic.mrc", "rb") as marcfile:
           reader = MARCReader(marcfile)
           for record in reader:
             dctype = "book"
