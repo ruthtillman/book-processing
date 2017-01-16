@@ -201,7 +201,7 @@ def writeVarsToCSV():
         fieldnames = ['owner', 'access', 'type', 'dc:title', 'dc:type', 'nd:alephIdentifier', 'dc:creator#author', 'dc:contributor#author', 'dc:alternative', 'dc:identifier#isbn', 'dc:subject#lcsh', 'dc:issued', 'dc:publisher', 'dc:abstract', 'dc:extent', 'dc:isVersionOf#edition', 'dc:language']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        with open("/Users/rtillman/Documents/Projects/CurateBooks/PyMARC/catholic.mrc", "rb") as marcfile:
+        with open("/Users/rtillman/Documents/Content/Hockx/001390565.mrc", "rb") as marcfile:
           reader = MARCReader(marcfile, to_unicode = True, force_utf8 = True)
           for record in reader:
             dctype = "book"
